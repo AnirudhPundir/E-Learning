@@ -1,10 +1,10 @@
-import { asyncHandler } from "../utils/asyncHandler.js"
-import { ApiError } from "../utils/apiError.js"
-import { Admin } from "../models/admin.models.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js"
+import { ApiError } from "../../utils/apiError.js"
+import { Admin } from "../../models/admin.models.js";
+import { ApiResponse } from "../../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
-import { cookieConfig, SUPERADMIN } from "../constants.js";
-import generateAccessAndRefreshTokens from "../utils/generateAccessRefreshTokens.js";
+import { cookieConfig, SUPERADMIN } from "../../constants.js";
+import generateAccessAndRefreshTokens from "../../utils/generateAccessRefreshTokens.js";
 
 export const registerAdmin = asyncHandler(async (req, res) => {
     const { userName, fullName, email, phone, password, role = "admin" } = req.body;

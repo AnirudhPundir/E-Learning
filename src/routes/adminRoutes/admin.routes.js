@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { deleteAdmin, getAdminDetails, getAllAdmins, loginAdmin, logoutAdmin, refreshAccessToken, registerAdmin, updateAdmin } from "../controllers/admin.controllers.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { deleteAdmin, getAdminDetails, getAllAdmins, loginAdmin, logoutAdmin, refreshAccessToken, registerAdmin, updateAdmin } from "../../controllers/adminControllers/admin.controllers.js";
+import { verifyJWT } from "../../middlewares/auth.middleware.js";
 
 const router = Router();
 

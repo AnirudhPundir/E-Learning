@@ -4,7 +4,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 
 const tokenSecrets = {
-    admin : process.env.ACCESS_TOKEN_SECRET
+    admin : process.env.ACCESS_TOKEN_SECRET,
+    user : process.env.ACCESS_TOKEN_SECRET_USER
 };
 
 export const verifyJWT = asyncHandler(async(req, res, next) => {
