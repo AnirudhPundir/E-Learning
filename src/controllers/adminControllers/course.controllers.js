@@ -46,6 +46,19 @@ const deleteCourse = asyncHandler(async(req, res) => {
     if(!deleteCourse) return res.status(200).json(new ApiResponse(400, {success: false}, "The course was not deleted"));
 
     return res.status(200).json(new ApiResponse(200, {success: true}, "The course was deleted successfully"));    
-})
+});
 
-export {createCourse, updateCourse, deleteCourse};
+const fetchCourseDetailsById = asyncHandler(async(req, res) => {
+
+    const {id} = req.params;
+
+    if(!id) return res.status(200).json(new ApiResponse(400, {success: false}, "Invalid Input"));
+
+    const course = await Course.findById(id);
+
+    if(!(course && !course.isDeleted)) return res.status(200).json(new ApiResponse(400, {success: false}, "Course not found"));
+
+    return res.status(200).json(new ApiResponse(200, {success: true, data: course}, "Course fetched succesfully"));
+});
+
+export {createCourse, updateCourse, deleteCourse, fetchCourseDetailsById};
