@@ -1,4 +1,4 @@
-import { ApiError } from "./apiError.js";
+import { ApiResponse } from "./apiResponse.js";
 
 const generateAccessAndRefreshTokens = async(id, model) => {
     try{
@@ -10,7 +10,7 @@ const generateAccessAndRefreshTokens = async(id, model) => {
         return {accessToken, refreshToken};
     }
     catch(errr){
-        throw new ApiError(500, `Tokens weren't generated ${errr.message}`);
+        resizeBy.status(200).json( new ApiResponse(500, {success: false}, `Tokens weren't generated ${errr.message}`));
     }
 }
 
