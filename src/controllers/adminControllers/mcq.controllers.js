@@ -1,7 +1,7 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { Section } from "../models/section.models.js"
-import Mcq from "../models/mcq.models.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { Section } from "../../models/section.models.js"
+import Mcq from "../../models/mcq.models.js";
+import { ApiResponse } from "../../utils/apiResponse.js";
 
 const addMCQ = asyncHandler(async (req, res) => {
 
