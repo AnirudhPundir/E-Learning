@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addMCQ, deleteMCQ, fetchMCQById, fetchMCQBySection, updateMCQ } from "../controllers/mcq.controllers.js";
+import { addMCQ, deleteMCQ, fetchMCQById, fetchMCQBySection, updateMCQ } from "../controllers/adminControllers/mcq.controllers.js";
 import {verifyJWT} from "../middlewares/auth.middleware.js";
 
 const router = Router();
