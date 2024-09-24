@@ -16,11 +16,7 @@ const videoLectureSchemma = new Schema({
     sectionIndex: {
         type: Number,
         required: true
-    },
-    completed: {
-        type: Boolean,
-        default: false
     }
 }, { timestamps: true });
 
-export const video = mongoose.model("Video", videoLectureSchemma);
+export const Video = mongoose.model("Video", videoLectureSchemma);

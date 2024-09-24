@@ -16,6 +16,7 @@ import userRouter from "./routes/userRoutes/user.routes.js";
 import courseRouter from "./routes/adminRoutes/course.routes.js";
 import sectionRouter from "./routes/adminRoutes/section.routes.js";
 import mcqRouter from "./routes/mcq.routes.js";
+import vdoRouter from "./routes/videoLecture.routes.js";
 
 app.use(process.env.ADMIN_APP_BASE_URL, adminRouter);
 
@@ -23,11 +24,11 @@ app.use(process.env.ADMIN_APP_BASE_URL, courseRouter);
 
 app.use(process.env.ADMIN_APP_BASE_URL, mcqRouter);
 
-app.use(process.env.ADMIN_APP_BASE_URL, sectionRouter)
+app.use(process.env.ADMIN_APP_BASE_URL, sectionRouter);
 
-app.use(process.env.USER_APP_BASE_URL, userRouter)
+app.use(process.env.ADMIN_APP_BASE_URL, vdoRouter);
 
-
+app.use(process.env.USER_APP_BASE_URL, userRouter);
 
 export default app;
 
