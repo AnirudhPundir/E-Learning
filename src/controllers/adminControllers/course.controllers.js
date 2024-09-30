@@ -61,4 +61,14 @@ const fetchCourseDetailsById = asyncHandler(async(req, res) => {
     return res.status(200).json(new ApiResponse(200, {success: true, data: course}, "Course fetched succesfully"));
 });
 
-export {createCourse, updateCourse, deleteCourse, fetchCourseDetailsById};
+const fetchAllCourses = asyncHandler(async(req, res) => {
+    
+    const courses = await Course.find({isDeleted: false});
+
+    if(!courses || courses.length === 0) return res.status(200).json(new ApiResponse(400, {success: false}, "No course found"));
+
+    return res.status(200).json(new ApiResponse(200, {success: true, data: courses}, "All courses are fetched"));
+
+});
+
+export {createCourse, updateCourse, deleteCourse, fetchCourseDetailsById, fetchAllCourses};
