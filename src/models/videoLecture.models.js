@@ -9,10 +9,6 @@ const videoLectureSchemma = new Schema({
         type: String,
         required: true
     },
-    url: {
-        type: String,
-        required: true
-    },
     sectionIndex: {
         type: Number,
         required: true
