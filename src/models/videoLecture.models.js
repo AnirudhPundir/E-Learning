@@ -12,6 +12,10 @@ const videoLectureSchemma = new Schema({
     sectionIndex: {
         type: Number,
         required: true
+    },
+    videoId: {
+        type: Schema.Types.ObjectId,
+        ref: "Uploads.files"
     }
 }, { timestamps: true });
 
