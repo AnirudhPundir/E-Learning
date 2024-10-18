@@ -16,6 +16,14 @@ const videoLectureSchemma = new Schema({
     videoId: {
         type: Schema.Types.ObjectId,
         ref: "Uploads.files"
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
