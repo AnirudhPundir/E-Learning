@@ -13,7 +13,7 @@ const uploadVideoLecture = asyncHandler(async (req, res) => {
 
     const fileName = req.file && req.file.filename;
 
-    if (!fileName) return res.status
+    if (!fileName) return res.status(200).json(new ApiResponse(400, {success: false}, "Video was not uploaded"));
 
     const { sectionId, videoName, description } = req.body;
 
