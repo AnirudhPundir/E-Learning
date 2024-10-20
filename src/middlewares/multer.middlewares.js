@@ -53,4 +53,16 @@ const fileFilter = (req, file, cb) => {
     else cb(new Error('Only videos files are allowed'));
 };
 
+const pdfFileFilter = (req, file, cb) => {
+    const fileTypes = /pdf/;
+    const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimeType = fileTypes.test(file.mimetype);
+
+    if (mimeType && extName) return cb(null, true);
+    else cb(new Error('Only PDF files are allowed'));
+};
+
+
 export const upload = multer({ storage, fileFilter, limits: { fileSize } });
+
+export const createMulterUpload = (fileFilter) => multer({ storage, fileFilter, limits: { fileSize } });

@@ -13,10 +13,23 @@ const assignmentSchemma = new Schema({
       type: Schema.Types.ObjectId,
       ref: "upload.files",
     },
+    documentType: {
+      type: String,
+      enum: {
+        values: ['question', 'answer'],
+        message: '{VALUE} is not a valid document type'
+      },  
+      required: true
+    },
+    sectionId: {
+      type: Schema.Types.ObjectId,
+      ref: "Section", // Assuming Section is the model for sections
+      required: true
+    },
     isDeleted: {
       type: Boolean,
       default: false,
     }
 }, {timestamps : true});
 
-export const assignment = mongoose.model("Assignment", assignmentSchemma);
+export const Assignment = mongoose.model("Assignment", assignmentSchemma);

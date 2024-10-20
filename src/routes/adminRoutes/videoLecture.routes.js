@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { upload } from "../../middlewares/multer.middlewares.js";
+import { createMulterUpload } from "../../middlewares/multer.middlewares.js";
 import { verifyJWT } from "../../middlewares/auth.middleware.js";
 import { deleteVideo, getAllVideos, getAllVideosBySectionId, getVideoDetailsById, streamVideo, updateVideoDetails, uploadVideoLecture } from "../../controllers/adminControllers/videoLecture.controllers.js";
+import { videoFileFilter } from "../../utils/fileFilters.js";
 
 const router = Router();
 
+const upload = createMulterUpload(videoFileFilter);
 
 router.route("/upload-file").post(verifyJWT, upload.single('file'), uploadVideoLecture);
 
