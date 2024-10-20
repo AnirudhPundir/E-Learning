@@ -1,7 +1,11 @@
+import mongoose from "mongoose";
+import mongodb from 'mongodb';
+import fs from 'fs'
 import { Assignment } from "../../models/assignment.models.js";
 import { Section } from "../../models/section.models.js";
 import { ApiResponse } from "../../utils/apiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
+
 
 const uploadAssignment = asyncHandler(async (req, res) => {
   const fileName = req.file && req.file.filename;
@@ -13,10 +17,10 @@ const uploadAssignment = asyncHandler(async (req, res) => {
         new ApiResponse(400, { success: false }, "Assignment was not uploaded")
       );
 
-  const { assignmentName, assignmentTask, assignmentSolution } = req.body;
+  const { assignmentName, assignmentTask, documentType, sectionId } = req.body;
 
   if (
-    [assignmentName, assignmentTask, assignmentSolution].some(
+    [assignmentName, assignmentTask, documentType, sectionId].some(
       (field) => field?.trim() === ""
     )
   ) {
@@ -25,6 +29,13 @@ const uploadAssignment = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(400, { success: false }, "All fields are required")
       );
+  }
+
+  const section = await Section.findById(sectionId, { isDeleted: false });
+  if (!section) {
+    return res
+      .status(200)
+      .json(new ApiResponse(400, { success: false }, "Section not found"));
   }
 
   // Check if an assignment with the same name already exists
@@ -61,7 +72,8 @@ const uploadAssignment = asyncHandler(async (req, res) => {
   const newAssignment = await Assignment.create({
     assignmentName,
     assignmentTask,
-    assignmentSolution,
+    documentType,
+    sectionId, // Adding sectionId to the new assignment
     assignmentId: fileStream.id.toString(), // Storing the file stream id as assignmentId
   });
 
@@ -135,14 +147,14 @@ const updateAssignment = asyncHandler(async (req, res) => {
     const assignment = await Assignment.findById(assignmentId);
 
     if (!assignment || assignment.isDeleted) {
-        return res.status(200).json(new ApiResponse(404, { success: false }, "Assignment not found"));
+        return res.status(200).json(new ApiResponse(404, { success: false }, "Assignment not ˳°found"));
     }
 
     // Update fields if provided
-    const { assignmentName, assignmentTask, assignmentSolution } = rest;
+
+    const { assignmentName, assignmentTask } = rest;
     if (assignmentName) assignment.assignmentName = assignmentName;
     if (assignmentTask) assignment.assignmentTask = assignmentTask;
-    if (assignmentSolution) assignment.assignmentSolution = assignmentSolution;
 
     const updatedAssignment = await assignment.save();
 
@@ -168,12 +180,13 @@ const deleteAssignment = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, { success: true }, "Assignment deleted successfully"));
 });
 
-const downloadAssignment = asyncHandler(async (req, res) => {
+const downloadAssignmentV1 = asyncHandler(async (req, res) => {
     const { assignmentId } = req.params;
 
     if (!assignmentId) {
         return res.status(200).json(new ApiResponse(400, { success: false }, "Invalid assignment ID"));
     }
+    const db = mongoose.connection.db;
 
     const assignment = await db.collection('uploads.files').findOne(new mongoose.Types.ObjectId(assignmentId));
 
@@ -184,7 +197,7 @@ const downloadAssignment = asyncHandler(async (req, res) => {
     const assignmentConfig = {
         size: assignment.length,
         start: 0,
-        end: this.size - 1
+        end: assignment.length - 1
 
     }
 
@@ -196,11 +209,39 @@ const downloadAssignment = asyncHandler(async (req, res) => {
     };
 
     res.writeHead(206, headers);
-
-    const db = mongoose.connection.db;
     const bucket = new mongodb.GridFSBucket(db, { bucketName: 'uploads' });
     const downloadStream = bucket.openDownloadStreamByName(assignment.filename, {
-        start, end
+        start: assignmentConfig.start, end: assignmentConfig.end
+    });
+
+    downloadStream.pipe(res);
+});
+
+const downloadAssignment = asyncHandler(async (req, res) => {q
+    const { assignmentId } = req.params;
+
+    if (!assignmentId) {
+        return res.status(200).json(new ApiResponse(400, { success: false }, "Invalid assignment ID"));
+    }
+
+    const db = mongoose.connection.db;
+    const assignment = await db.collection('uploads.files').findOne({ _id: new mongoose.Types.ObjectId(assignmentId) });
+
+    if (!assignment) {
+        return res.status(200).json(new ApiResponse(404, { success: false }, "Assignment not found"));
+    }
+
+    const bucket = new mongodb.GridFSBucket(db, { bucketName: 'uploads' }).open;
+    const downloadStream = bucket.openDownloadStream(assignment._id);
+
+
+    res.set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${assignment.filename}"`,
+    });
+
+    downloadStream.on('error', (error) => {
+        return res.status(200).json(new ApiResponse(500, { success: false }, "Error downloading the file"));
     });
 
     downloadStream.pipe(res);
