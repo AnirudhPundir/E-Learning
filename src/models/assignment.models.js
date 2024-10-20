@@ -9,13 +9,13 @@ const assignmentSchemma = new Schema({
         type : String,
         required : true
     },
-    assignmentSolution : {
-        type : String,
-        required : true
+    assignmentId: {
+      type: Schema.Types.ObjectId,
+      ref: "upload.files",
     },
-    completed : {
-        type : Boolean,
-        default : false
+    isDeleted: {
+      type: Boolean,
+      default: false,
     }
 }, {timestamps : true});
 
