@@ -1,10 +1,13 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from 'path';
 
 const app = express();
 
 app.use(cors({origin: process.env.CORS_ORIGIN}));
+
+app.use(express.static(path.resolve('dist')));
 
 app.use(express.json({limit: "16kb"}));
 app.use(express.urlencoded({extended: true, limit: "16kb"}));
@@ -18,7 +21,7 @@ import sectionRouter from "./routes/adminRoutes/section.routes.js";
 import mcqRouter from "./routes/mcq.routes.js";
 import videoRouter from "./routes/adminRoutes/videoLecture.routes.js";
 import assignmentRouter from "./routes/adminRoutes/assignment.routes.js";
-
+import userCourseRouter from "./routes/userRoutes/course.routes.js";
 
 app.use(process.env.ADMIN_APP_BASE_URL, adminRouter);
 
@@ -34,6 +37,7 @@ app.use(process.env.ADMIN_APP_BASE_URL, videoRouter);
 
 app.use(process.env.USER_APP_BASE_URL, userRouter);
 
+app.use(process.env.USER_APP_BASE_URL, userCourseRouter);
 
 export default app;
 

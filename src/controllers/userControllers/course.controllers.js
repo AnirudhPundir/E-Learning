@@ -1,9 +1,11 @@
-import { Course } from "../../models/course.models";
-import { ApiResponse } from "../../utils/apiResponse";
-import { asyncHandler } from "../../utils/asyncHandler";
+import mongoose from "mongoose";
+import { Course } from "../../models/course.models.js";
+import { ApiResponse } from "../../utils/apiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 const getAllCourses = asyncHandler(async (req, res) => {
-    const courses = await Course.find({ isDeleted: false });
+
+    const courses = await Course.find({ isDeleted: false }).select("-isDeleted");
 
     if (!courses || courses.length === 0) {
         return res.status(200).json(new ApiResponse(404, { success: false }, "No courses found"));
@@ -20,12 +22,12 @@ const getCourseSections = asyncHandler(async (req, res) => {
     }
 
     const sections = await Course.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(courseId), isDeleted: false } },
+        { $match: { _id: new mongoose.Types.ObjectId(courseId), isDeleted: false } },
         {
             $lookup: {
                 from: 'sections', // Assuming the collection name for sections
                 localField: '_id',
-                foreignField: 'course_id',
+                foreignField: 'courseId',
                 as: 'sections'
             }
         },
@@ -35,6 +37,7 @@ const getCourseSections = asyncHandler(async (req, res) => {
                 preserveNullAndEmptyArrays: true // To keep courses without sections
             }
         },
+        { $match: { 'sections.isDeleted': false } }, // Only bring sections that are not deleted
         {
             $project: {
                 _id: 1,
@@ -69,22 +72,25 @@ const getCourseContents = asyncHandler(async (req, res) => {
     };
 
     const lookupFields = [
-        { foreignField: 'course_id', modelName: 'videos' },
-        { foreignField: 'course_id', modelName: 'assignments' },
-        { foreignField: 'course_id', modelName: 'mcqs' }
+        { foreignField: 'courseId', modelName: 'videos' },
+        { foreignField: 'courseId', modelName: 'assignments' },
+        { foreignField: 'courseId', modelName: 'mcqs' }
     ];
 
     const lookups = generateLookups(lookupFields);
 
-    
+
     const sections = await Course.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(courseId), isDeleted: false } },
+        { $match: { _id: new mongoose.Types.ObjectId(courseId), isDeleted: false } },
         {
             $lookup: {
                 from: 'sections', // Assuming the collection name for sections
                 localField: '_id',
-                foreignField: 'course_id',
-                as: 'sections'
+                foreignField: 'courseId',
+                as: 'sections',
+                pipeline: [
+                    { $match: { isDeleted: false } } // Check for sections that are not deleted
+                ]
             }
         },
         {
@@ -97,24 +103,52 @@ const getCourseContents = asyncHandler(async (req, res) => {
             $lookup: {
                 from: 'videos', // Assuming the collection name for videos
                 localField: 'sections._id',
-                foreignField: 'section_id',
-                as: 'sections.videos'
+                foreignField: 'sectionId',
+                as: 'sections.videos',
+                pipeline: [
+                    { $match: { isDeleted: false } }, // Check for videos that are not deleted
+                    { $project: { _id: 1, videoName: 1, sectionIndex: 1, videoId: 1, description: 1 } } // Project required fields
+                ]
             }
         },
         {
             $lookup: {
                 from: 'assignments', // Assuming the collection name for assignments
                 localField: 'sections._id',
-                foreignField: 'section_id',
-                as: 'sections.assignments'
+                foreignField: 'sectionId',
+                as: 'sections.assignments',
+                pipeline: [
+                    { $match: { isDeleted: false } },
+                    { $match: { isDeleted: false } },
+                    {
+                        $project: {
+                            _id: 1,
+                            assignmentName: 1,
+                            assignmentTask: 1,
+                            assignmentId: 1,
+                            documentType: 1
+                        }
+                    }
+                ]
             }
         },
         {
             $lookup: {
                 from: 'mcqs', // Assuming the collection name for MCQs
                 localField: 'sections._id',
-                foreignField: 'section_id',
-                as: 'sections.mcqs'
+                foreignField: 'sectionId',
+                as: 'sections.mcqs',
+                pipeline: [
+                    { $match: { isDeleted: false } }, // Check for MCQs that are not deleted
+                    {
+                        $project: {
+                            _id: 1,
+                            question: 1,
+                            options: 1,
+                            answer: 1
+                        }
+                    }
+                ]
             }
         },
         {
