@@ -1,6 +1,7 @@
 import { Course } from "../../models/course.models.js";
 import Enrollment from "../../models/enrollment.models.js";
 import { ApiResponse } from "../../utils/apiResponse.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 
 const enrollUserInCourse = asyncHandler(async (req, res) => {
@@ -18,13 +19,21 @@ const enrollUserInCourse = asyncHandler(async (req, res) => {
         return res.status(200).json(new ApiResponse(404, { success: false }, "Course not found or has been deleted"));
     }
 
+    const existingEnrollment = await Enrollment.findOne({ student_id: userId, course_id: courseId });
+
+    if (existingEnrollment) {
+        return res.status(200).json(new ApiResponse(400, { success: false }, "User is already enrolled in this course"));
+    }
+
     const enrollment = await Enrollment.create({ student_id: userId, course_id: courseId });
 
     if (!enrollment) {
         return res.status(200).json(new ApiResponse(400, { success: false }, "Enrollment failed"));
     }
 
-    return res.status(200).json(new ApiResponse(200, { success: true, data: enrollment }, "User enrolled successfully"));
+    const enrollmentCreated = await Enrollment.findById(enrollment._id).select('-isDeleted');
+
+    return res.status(200).json(new ApiResponse(200, { success: true, data: enrollmentCreated }, "User enrolled successfully"));
 });
 
 const getUserEnrolledCourses = asyncHandler(async (req, res) => {
