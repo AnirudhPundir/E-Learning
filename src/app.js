@@ -22,6 +22,7 @@ import mcqRouter from "./routes/mcq.routes.js";
 import videoRouter from "./routes/adminRoutes/videoLecture.routes.js";
 import assignmentRouter from "./routes/adminRoutes/assignment.routes.js";
 import userCourseRouter from "./routes/userRoutes/course.routes.js";
+import enrollmentRouter from "./routes/userRoutes/enrollment.routes.js";
 
 app.use(process.env.ADMIN_APP_BASE_URL, adminRouter);
 
@@ -38,6 +39,8 @@ app.use(process.env.ADMIN_APP_BASE_URL, videoRouter);
 app.use(process.env.USER_APP_BASE_URL, userRouter);
 
 app.use(process.env.USER_APP_BASE_URL, userCourseRouter);
+
+app.use(process.env.USER_APP_BASE_URL, enrollmentRouter);
 
 export default app;
 
